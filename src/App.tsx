@@ -23,8 +23,7 @@ interface Photo {
 }
 
 const Container = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  
 `;
 
 const App: React.FC = () => {
@@ -73,14 +72,14 @@ const App: React.FC = () => {
   }, [query]);
 
   // TODO: fetch more
-  // console.log(images)
+
   return (
-    <Container>
-      <div>
+    <div>
+      <div >
         <SearchBox onSearch={(v) => setQuery(v)} />
       </div>
       {loading ? "Loading..." : <ImageList images={images} />}
-    </Container>
+    </div>
   );
 };
 
