@@ -22,8 +22,12 @@ interface Photo {
   id: string;
 }
 
-const Container = styled.div`
-  
+const SearchBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  height: 60px;
 `;
 
 const App: React.FC = () => {
@@ -75,9 +79,9 @@ const App: React.FC = () => {
 
   return (
     <div>
-      <div >
+      <SearchBar>
         <SearchBox onSearch={(v) => setQuery(v)} />
-      </div>
+      </SearchBar>
       {loading ? "Loading..." : <ImageList images={images} />}
     </div>
   );
