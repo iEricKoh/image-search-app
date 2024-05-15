@@ -8,8 +8,11 @@ import styled from "styled-components";
 const API_KEY = "3e7cc266ae2b0e0d78e279ce8e361736";
 
 interface Result {
+  page: number;
   pages: number;
+  perpage: number;
   photo: Photo[];
+  total: number;
 }
 
 interface Photo {
@@ -20,14 +23,14 @@ interface Photo {
 }
 
 const Container = styled.div`
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+`;
 
 const App: React.FC = () => {
   const [query, setQuery] = useState("");
   const [images, setImages] = useState<Image[]>([]);
-  
+
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
@@ -38,7 +41,8 @@ const App: React.FC = () => {
       const response = await axios.get(
         `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${API_KEY}&format=json&nojsoncallback=1&safe_search=1&text=${text}&page=${pageNum}`
       );
-      const photos: Result = response.data;
+      const photos: Result = response.data.photos;
+      console.log(photos, photos.photo);
       const newImages = [
         ...images,
         ...photos.photo.map((photo) => ({
@@ -69,10 +73,12 @@ const App: React.FC = () => {
   }, [query]);
 
   // TODO: fetch more
-
+  // console.log(images)
   return (
     <Container>
-      <div><SearchBox onSearch={(v) => setQuery(v)} /></div>
+      <div>
+        <SearchBox onSearch={(v) => setQuery(v)} />
+      </div>
       {loading ? "Loading..." : <ImageList images={images} />}
     </Container>
   );
