@@ -3,7 +3,7 @@ import axios from "axios";
 import debounce from "lodash/debounce";
 import { SearchBox } from "./components/SearchBox";
 import { ImageList, Image } from "./components/ImageList";
-import styled from "styled-components";
+import styled from "styled-components"; // css-in-js
 
 const API_KEY = "3e7cc266ae2b0e0d78e279ce8e361736";
 
@@ -24,14 +24,21 @@ interface Photo {
 
 const SearchBar = styled.div`
   display: flex;
+  width: 100%;
   align-items: center;
   justify-content: center;
   position: fixed;
   height: 60px;
+  background: rgba(0, 0, 0, 0.25);
+`;
+
+const BottomWrapper = styled.div`
+  display: flex;
+  justify-content: center;
 `;
 
 const App: React.FC = () => {
-  const [query, setQuery] = useState("");
+  const [keywords, setKeywords] = useState("");
   const [images, setImages] = useState<Image[]>([]);
 
   const [loading, setLoading] = useState(false);
@@ -45,7 +52,6 @@ const App: React.FC = () => {
         `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${API_KEY}&format=json&nojsoncallback=1&safe_search=1&text=${text}&page=${pageNum}`
       );
       const photos: Result = response.data.photos;
-      console.log(photos, photos.photo);
       const newImages = [
         ...images,
         ...photos.photo.map((photo) => ({
@@ -70,19 +76,39 @@ const App: React.FC = () => {
   );
 
   useEffect(() => {
-    if (query) {
-      debouncedSearch.current(query, page);
+    if (keywords) {
+      // Always navigate to page 1 if keywords updated
+      debouncedSearch.current(keywords, 1);
+    } else {
+      // Reset search results
+      setImages([]);
     }
-  }, [query]);
-
-  // TODO: fetch more
+  }, [keywords]);
 
   return (
     <div>
       <SearchBar>
-        <SearchBox onSearch={(v) => setQuery(v)} />
+        <SearchBox onSearch={(v) => setKeywords(v)} />
       </SearchBar>
-      {loading ? "Loading..." : <ImageList images={images} />}
+      {!!images.length ? (
+        <>
+          <ImageList images={images} />
+          <BottomWrapper>{hasMore ? (
+            <button
+              onClick={() => {
+                setPage((prePage) => prePage + 1);
+                fetchImages(keywords, page); // fetch more
+              }}
+            >
+              View more
+            </button>
+          ) : (
+            <div>End of search results</div>
+          )}</BottomWrapper>
+        </>
+      ) : loading ? (
+        "Loading..."
+      ) : null}
     </div>
   );
 };
